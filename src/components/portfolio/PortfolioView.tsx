@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { PortfolioHolding } from './PortfolioHolding';
+import { cn } from '@/lib/utils';
 
 const demo = [
   {
@@ -52,11 +53,16 @@ interface PortfolioViewProps {
   title: string;
 }
 
+type SortOption = 'name' | 'day_change_per' | 'p&l_per' | 'pe' | 'down%' | 'up%';
+
+
 export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const [isConnected, setIsConnected] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [holdings, setHoldings] = useState([]);
   const [credentials, setCredentials] = useState({ apiKey: '', apiSecret: '' });
+  const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Total portfolio values calculations
   const totalInvestment = holdings.reduce((sum, item) => sum + (item.avgPrice * item.quantity), 0);
@@ -72,6 +78,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     try{
       const response = await fetch('http://localhost:8000/api/holdings');
       const result = await response.json();
+      console.log('Queried stock holindgs', result);
       return result;
     }
     catch(error){
@@ -145,6 +152,75 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     //   setIsRefreshing(false);
     // }, 1500);
   };
+
+
+  const handleSort = (option: SortOption) => {
+    if (sortBy === option) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(option);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedHoldings = [...holdings].sort((a, b) => {
+    if (sortBy === 'name') {
+      return sortOrder === 'asc' 
+        ? a.symbol.localeCompare(b.symbol) 
+        : b.symbol.localeCompare(a.symbol);
+    } else if (sortBy === 'day_change_per') {
+      return sortOrder === 'asc' 
+        ? a.dayChange - b.dayChange 
+        : b.dayChange - a.dayChange;
+    } else if (sortBy === 'p&l_per') {
+      return sortOrder === 'asc' 
+        ? a.plPercentage - b.plPercentage 
+        : b.plPercentage - a.plPercentage;
+    }
+    else if (sortBy === 'pe') {
+      if (a.pe === null) return sortOrder === 'asc' ? 1 : -1;
+      if (b.pe === null) return sortOrder === 'asc' ? -1 : 1;
+      return sortOrder === 'asc' ? a.pe - b.pe : b.pe - a.pe;
+    }
+    else if (sortBy === 'down%') {
+      return sortOrder === 'asc' 
+        ? a.percentFrom52WeekHigh - b.percentFrom52WeekHigh
+        : b.percentFrom52WeekHigh - a.percentFrom52WeekHigh;
+    }
+    else if (sortBy === 'up%') {
+      return sortOrder === 'asc' 
+        ? a.percentFrom52WeekLow - b.percentFrom52WeekLow 
+        : b.percentFrom52WeekLow - a.percentFrom52WeekLow;
+    }
+    return 0;
+  });
+
+
+   const SortButton = ({ 
+      option, 
+      label 
+    }: { 
+      option: SortOption; 
+      label: string 
+    }) => (
+      <button 
+        onClick={() => handleSort(option)}
+        className={cn(
+          "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+          sortBy === option 
+            ? "bg-primary text-primary-foreground" 
+            : "bg-muted hover:bg-muted/80"
+        )}
+      >
+        {label}
+        {sortBy === option && (
+          <span className="ml-1">
+            {sortOrder === 'asc' ? '↓' : '↑'}
+          </span>
+        )}
+      </button>
+    );
+
 
   return (
     <div className="space-y-6">
@@ -234,6 +310,19 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
                 <TabsTrigger value="analysis">Analysis</TabsTrigger>
               </TabsList>
               
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                  <SortButton option="name" label="Name" />
+                  <SortButton option="day_change_per" label="Change%" />
+                  <SortButton option="p&l_per" label="P&L%" />
+                  <SortButton option="down%" label="Down%" />
+                  <SortButton option="up%" label="Up%" />
+                  <SortButton option="pe" label="P/E" />
+
+                  
+                </div>
+              </div>
+
               <Button variant="outline" size="sm" className="flex items-center gap-2">
                 <Filter className="h-4 w-4" />
                 Filter
@@ -242,7 +331,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
             
             <TabsContent value="holdings" className="mt-0">
               <div className="space-y-4">
-                {holdings.map((holding, index) => (
+                {sortedHoldings.map((holding, index) => (
                   <PortfolioHolding key={index} holding={holding} />
                 ))}
               </div>

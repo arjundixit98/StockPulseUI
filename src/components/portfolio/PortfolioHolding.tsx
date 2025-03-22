@@ -1,7 +1,16 @@
 
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, ExternalLink } from 'lucide-react';
+import { ArrowUpRight, ArrowUp, ArrowDown, ArrowDownRight, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 
 interface Holding {
   id: string;
@@ -10,11 +19,17 @@ interface Holding {
   quantity: number;
   avgPrice: number;
   currentPrice: number;
+  investedValue: number,
   value: number;
   pl: number;
   plPercentage: number;
   dayChange: number;
   sector: string;
+  pe: number;
+  weekHigh52: number;
+  weekLow52: number;
+  percentFrom52WeekHigh: number;
+  percentFrom52WeekLow: number;
 }
 
 interface PortfolioHoldingProps {
@@ -27,10 +42,10 @@ export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding }) =
   
   return (
     <div className="glass-card rounded-lg p-4 hover:shadow-md transition-all duration-300">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center justify-between md:justify-start gap-2">
-            <h3 className="font-semibold">{holding.symbol}</h3>
+     <div className="flex items-center mb-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm">{holding.symbol.slice(0, holding.symbol.length-3)}</h3>
             <span className="text-xs rounded-full bg-muted px-2 py-0.5">{holding.sector}</span>
             <a 
               href={`https://www.screener.in/company/${holding.symbol.slice(0, holding.symbol.length-3)}/consolidated/`} 
@@ -41,56 +56,95 @@ export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding }) =
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">{holding.name}</p>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-6">
-          <div>
-            <p className="text-xs text-muted-foreground">Quantity</p>
-            <p className="font-medium">{holding.quantity}</p>
-          </div>
-          
-          <div>
-            <p className="text-xs text-muted-foreground">Avg. Price</p>
-            <p className="font-medium">₹{holding.avgPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
-          </div>
-          
-          <div>
-            <p className="text-xs text-muted-foreground">LTP</p>
-            <div className="flex items-center gap-1">
-              <p className="font-medium">₹{holding.currentPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
-              <span className={cn(
-                "text-xs flex items-center",
-                isDayUp ? "text-stock-up" : "text-stock-down"
-              )}>
-                {isDayUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                {Math.abs(parseFloat(holding.dayChange.toString())).toFixed(2)}%
-              </span>
-            </div>
-          </div>
-          
-          <div>
-            <p className="text-xs text-muted-foreground">Current Value</p>
-            <p className="font-medium">₹{holding.value.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</p>
-          </div>
-          
-          <div>
-            <p className="text-xs text-muted-foreground">P&L</p>
-            <div className="flex items-center gap-1">
-              <p className={isProfit ? "text-stock-up font-medium" : "text-stock-down font-medium"}>
-                {isProfit ? "+" : ""}₹{Math.abs(holding.pl).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
-              </p>
-              <span className={cn(
-                "text-xs rounded-full px-1.5 py-0.5 flex items-center gap-0.5",
-                isProfit ? "bg-stock-upBg text-stock-up" : "bg-stock-downBg text-stock-down"
-              )}>
-                {isProfit ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                {Math.abs(holding.plPercentage).toFixed(2)}%
-              </span>
-            </div>
-          </div>
+          {/* <p className="text-sm text-muted-foreground">{holding.name}</p> */}
         </div>
       </div>
+      
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Quantity</TableHead>
+            <TableHead className="w-[120px]">Avg. Price</TableHead>
+            <TableHead className="w-[120px]">LTP</TableHead>
+            <TableHead className="w-[80px]">P/E</TableHead>
+            <TableHead className="w-[150px]">52W High</TableHead>
+            <TableHead className="w-[150px]">52W Low</TableHead>
+            <TableHead className="w-[120px]">Invested Value</TableHead>
+            <TableHead className="w-[120px]">Current Value</TableHead>
+            <TableHead className="w-[150px]">P&L</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="font-medium">{holding.quantity}</TableCell>
+            <TableCell>₹{holding.avgPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</TableCell>
+            <TableCell>
+              <div className="flex items-center gap-1">
+                <span>₹{holding.currentPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                <span className={cn(
+                  "text-xs flex items-center",
+                  isDayUp ? "text-stock-up" : "text-stock-down"
+                )}>
+                  {isDayUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                  {Math.abs(parseFloat(holding.dayChange.toString())).toFixed(2)}%
+                </span>
+              </div>
+            </TableCell>
+            <TableCell>{holding.pe.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</TableCell>
+            
+            {/* <TableCell>{holding.weekHigh52}</TableCell> */}
+            <TableCell>
+              <div className="flex items-center gap-1">
+                <span>₹{holding.weekHigh52.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                <span className={cn(
+                  "text-xs flex items-center",
+                  "text-stock-down"
+                )}>
+                  <ArrowDown className="h-3 w-3" />
+                  {Math.abs(parseFloat(holding.percentFrom52WeekHigh.toString())).toFixed(2)}%
+                </span>
+              </div>
+            </TableCell>
+
+            <TableCell>
+              <div className="flex items-center gap-1">
+                <span>₹{holding.weekLow52.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                <span className={cn(
+                  "text-xs flex items-center",
+                   "text-stock-up"
+                )}>
+                <ArrowUp className="h-3 w-3" />    
+                {Math.abs(parseFloat(holding.percentFrom52WeekLow.toString())).toFixed(2)}% 
+                
+                </span>
+              </div>
+            </TableCell>
+
+            <TableCell>₹{holding.investedValue}</TableCell>
+
+           
+            {/* <TableCell>₹{holding.investedValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</TableCell> */}
+
+            <TableCell>₹{holding.value.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</TableCell>
+
+
+            <TableCell>
+              <div className="flex items-center gap-1">
+                <span className={isProfit ? "text-stock-up font-medium" : "text-stock-down font-medium"}>
+                  {isProfit ? "+" : ""}₹{Math.abs(holding.pl).toLocaleString('en-IN', { maximumFractionDigits: 2 })}
+                </span>
+                <span className={cn(
+                  "text-xs rounded-full px-1.5 py-0.5 flex items-center gap-0.5",
+                  isProfit ? "bg-stock-upBg text-stock-up" : "bg-stock-downBg text-stock-down"
+                )}>
+                  {isProfit ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                  {Math.abs(holding.plPercentage).toFixed(2)}%
+                </span>
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
     </div>
   );
 };

@@ -10,6 +10,7 @@ import MultiGraph from "./pages/MultiGraph";
 import Portfolio from "./pages/Portfolio";
 import Recommendations from "./pages/Recommendations";
 import NotFound from "./pages/NotFound";
+import StockList from  "./pages/StockList";
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/multi-graph" element={<MultiGraph />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/demo" element={<StockList />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

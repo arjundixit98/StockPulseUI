@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowUpRight, ArrowUp, ArrowDown, ArrowDownRight, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -10,7 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
+import StockChartModal from './StockChartModal';
+import { GraphCard } from '../multi-graph/GraphCard';
 
 interface Holding {
   id: string;
@@ -30,15 +31,19 @@ interface Holding {
   weekLow52: number;
   percentFrom52WeekHigh: number;
   percentFrom52WeekLow: number;
+  stock: object;
 }
+
 
 interface PortfolioHoldingProps {
   holding: Holding;
+  onSelectStock: (symbol: string) => void;
 }
 
-export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding }) => {
+export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding, onSelectStock }) => {
   const isProfit = holding.pl >= 0;
   const isDayUp = parseFloat(holding.dayChange.toString()) >= 0;
+  const [selectedStock, setSelectedStock ] = useState(null);
   
   return (
     <div className="glass-card rounded-lg p-4 hover:shadow-md transition-all duration-300">
@@ -54,9 +59,14 @@ export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding }) =
               className="text-primary hover:text-primary/80"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-            </a>
+            </a>            
           </div>
-          {/* <p className="text-sm text-muted-foreground">{holding.name}</p> */}
+          <p 
+            className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+            onClick={() => onSelectStock(holding.symbol)}
+          >
+            {holding.name}
+          </p>
         </div>
       </div>
       

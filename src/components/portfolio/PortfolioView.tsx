@@ -62,8 +62,8 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [holdings, setHoldings] = useState([]);
   const [credentials, setCredentials] = useState({ apiKey: '', apiSecret: '' });
-  const [sortBy, setSortBy] = useState<SortOption>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  // const [sortBy, setSortBy] = useState<SortOption>('name');
+  // const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
@@ -166,72 +166,10 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     setSelectedStock(null);
   };
 
-  const handleSort = (option: SortOption) => {
-    if (sortBy === option) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(option);
-      setSortOrder('asc');
-    }
-  };
-
-  const sortedHoldings = [...holdings].sort((a, b) => {
-    if (sortBy === 'name') {
-      return sortOrder === 'asc' 
-        ? a.symbol.localeCompare(b.symbol) 
-        : b.symbol.localeCompare(a.symbol);
-    } else if (sortBy === 'day_change_per') {
-      return sortOrder === 'asc' 
-        ? a.dayChange - b.dayChange 
-        : b.dayChange - a.dayChange;
-    } else if (sortBy === 'p&l_per') {
-      return sortOrder === 'asc' 
-        ? a.plPercentage - b.plPercentage 
-        : b.plPercentage - a.plPercentage;
-    }
-    else if (sortBy === 'pe') {
-      if (a.pe === null) return sortOrder === 'asc' ? 1 : -1;
-      if (b.pe === null) return sortOrder === 'asc' ? -1 : 1;
-      return sortOrder === 'asc' ? a.pe - b.pe : b.pe - a.pe;
-    }
-    else if (sortBy === 'down%') {
-      return sortOrder === 'asc' 
-        ? a.percentFrom52WeekHigh - b.percentFrom52WeekHigh
-        : b.percentFrom52WeekHigh - a.percentFrom52WeekHigh;
-    }
-    else if (sortBy === 'up%') {
-      return sortOrder === 'asc' 
-        ? a.percentFrom52WeekLow - b.percentFrom52WeekLow 
-        : b.percentFrom52WeekLow - a.percentFrom52WeekLow;
-    }
-    return 0;
-  });
 
 
-   const SortButton = ({ 
-      option, 
-      label 
-    }: { 
-      option: SortOption; 
-      label: string 
-    }) => (
-      <button 
-        onClick={() => handleSort(option)}
-        className={cn(
-          "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-          sortBy === option 
-            ? "bg-primary text-primary-foreground" 
-            : "bg-muted hover:bg-muted/80"
-        )}
-      >
-        {label}
-        {sortBy === option && (
-          <span className="ml-1">
-            {sortOrder === 'asc' ? '↓' : '↑'}
-          </span>
-        )}
-      </button>
-    );
+
+
 
 
   return (

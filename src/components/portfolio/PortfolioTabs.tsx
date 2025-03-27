@@ -12,12 +12,20 @@ interface Holding {
   quantity: number;
   avgPrice: number;
   currentPrice: number;
+  investedValue: number,
   value: number;
   pl: number;
   plPercentage: number;
   dayChange: number;
   sector: string;
+  pe: number;
+  weekHigh52: number;
+  weekLow52: number;
+  percentFrom52WeekHigh: number;
+  percentFrom52WeekLow: number;
+  stock: object;
 }
+
 
 interface PortfolioTabsProps {
   holdings: Holding[];

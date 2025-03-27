@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { PortfolioHolding } from './PortfolioHolding';
 import { cn } from '@/lib/utils';
-
+import { PortfolioTabs } from './PortfolioTabs';
+import { StockGraphOverlay } from './StockGraphOverlay';
 const demo = [
   {
     'tradingsymbol': 'AMBUJACEM', 
@@ -63,6 +64,8 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const [credentials, setCredentials] = useState({ apiKey: '', apiSecret: '' });
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   // Total portfolio values calculations
   const totalInvestment = holdings.reduce((sum, item) => sum + (item.avgPrice * item.quantity), 0);
@@ -153,6 +156,15 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     // }, 1500);
   };
 
+  const handleSelectStock = (symbol: string) => {
+    setSelectedStock(symbol);
+    setIsOverlayOpen(true);
+  };
+
+  const handleCloseOverlay = () => {
+    setIsOverlayOpen(false);
+    setSelectedStock(null);
+  };
 
   const handleSort = (option: SortOption) => {
     if (sortBy === option) {
@@ -303,50 +315,16 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
             </Card>
           </div>
 
-          <Tabs defaultValue="holdings" className="w-full">
-            <div className="flex items-center justify-between mb-4">
-              <TabsList>
-                <TabsTrigger value="holdings">Holdings</TabsTrigger>
-                <TabsTrigger value="analysis">Analysis</TabsTrigger>
-              </TabsList>
-              
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-                  <SortButton option="name" label="Name" />
-                  <SortButton option="day_change_per" label="Change%" />
-                  <SortButton option="p&l_per" label="P&L%" />
-                  <SortButton option="down%" label="Down%" />
-                  <SortButton option="up%" label="Up%" />
-                  <SortButton option="pe" label="P/E" />
+          <PortfolioTabs 
+            holdings={holdings} 
+            onSelectStock={handleSelectStock} 
+          />
 
-                  
-                </div>
-              </div>
-
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                Filter
-              </Button>
-            </div>
-            
-            <TabsContent value="holdings" className="mt-0">
-              <div className="space-y-4">
-                {sortedHoldings.map((holding, index) => (
-                  <PortfolioHolding key={index} holding={holding} />
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="analysis" className="mt-0">
-              <div className="flex flex-col items-center justify-center p-10 glass-card rounded-lg">
-                <PieChart className="h-16 w-16 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-medium mb-2">Portfolio Analysis</h3>
-                <p className="text-muted-foreground text-center">
-                  Detailed portfolio analysis visualization will be added here, showing sector allocation, risk metrics, and performance over time.
-                </p>
-              </div>
-            </TabsContent>
-          </Tabs>
+          <StockGraphOverlay 
+            isOpen={isOverlayOpen}
+            onClose={handleCloseOverlay}
+            stockSymbol={selectedStock}
+          />
         </>
       )}
     </div>

@@ -50,7 +50,14 @@ export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding, onS
      <div className="flex items-center mb-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm">{holding.symbol.slice(0, holding.symbol.length-3)}</h3>
+
+          <h3 
+              className="font-semibold cursor-pointer hover:text-primary transition-colors"
+              onClick={() => onSelectStock(holding.symbol)}
+            >
+              {holding.symbol.slice(0, holding.symbol.length-3)}
+            </h3>
+            
             <span className="text-xs rounded-full bg-muted px-2 py-0.5">{holding.sector}</span>
             <a 
               href={`https://www.screener.in/company/${holding.symbol.slice(0, holding.symbol.length-3)}/consolidated/`} 
@@ -133,7 +140,7 @@ export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding, onS
             <TableCell>₹{holding.investedValue}</TableCell>
 
            
-            {/* <TableCell>₹{holding.investedValue.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</TableCell> */}
+           
 
             <TableCell>₹{holding.value.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</TableCell>
 

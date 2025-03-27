@@ -1,8 +1,6 @@
-import React from 'react';
-import { X } from 'lucide-react';
-import { GraphCard, StockData } from '@/components/multi-graph/GraphCard';
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { GraphCard } from '@/components/multi-graph/GraphCard';
 
 interface StockGraphOverlayProps {
   isOpen: boolean;
@@ -10,41 +8,62 @@ interface StockGraphOverlayProps {
   stockSymbol: string | null;
 }
 
-export const StockGraphOverlay: React.FC<StockGraphOverlayProps> = ({ 
-  isOpen, 
+export const StockGraphOverlay: React.FC<StockGraphOverlayProps> = ({
+  isOpen,
   onClose,
   stockSymbol
 }) => {
-  if (!stockSymbol) return null;
-  
-  // Create a mock stock data object for the GraphCard
-  const stockData: StockData = {
-    symbol: stockSymbol,
-    name: stockSymbol,
-    currentPrice: 1500 + Math.random() * 500,
-    change: Math.random() * 100 - 50,
-    changePercentage: Math.random() * 5 - 2.5,
-    chartData: Array.from({ length: 30 }, (_, i) => ({
-      date: new Date(Date.now() - (30 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      price: Math.random() * 1000 + 500
-    })),
-    weekHigh52: 2200,
-    weekLow52: 850
+
+  const [stockData, setStockData] = useState(null);
+
+
+  const fetchStockData = async (ticker: string) => {
+    
+    if(!ticker)
+      return null;
+
+    try{
+
+      const response = await fetch(`http://localhost:8000/api/stock?ticker=${ticker}`);
+      const result = await response.json();
+      
+      console.log(`Queried stock data for ${result.symbol}`,result);
+      return result;
+    }
+    catch(error)
+    {
+      console.log('Error occured while fetching historical data', error);
+      return null;
+    }
+    
   };
+
+  useEffect(()=>{
+    const loadData = async ()=> {
+      const stockData = await fetchStockData(stockSymbol);
+      setStockData(stockData);
+
+    }
+
+    loadData();
+  },[stockSymbol]);
+
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] bg-background/95 backdrop-blur-sm">
-        <DialogTitle className="sr-only">Stock Performance</DialogTitle>
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-semibold">Stock Performance</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="h-[500px]">
-          <GraphCard stock={stockData}/>
-        </div>
+      <DialogContent className="max-w-5xl bg-opacity-95">
+      <DialogHeader>
+      {/* <DialogTitle>Are you absolutely sure?</DialogTitle>
+      <DialogDescription>
+        This action cannot be undone. This will permanently delete your account
+        and remove your data from our servers.
+      </DialogDescription> */}
+    </DialogHeader>
+        {stockData && (
+          <GraphCard 
+            stock={stockData}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

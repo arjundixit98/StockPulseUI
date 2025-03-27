@@ -53,13 +53,13 @@ export const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
           <div className="mb-3 aspect-video w-full overflow-hidden rounded-lg">
             <img 
               src={news.imageUrl} 
-              alt={news.title}
+              alt={news?.title}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
             />
           </div>
         )}
         
-        <h3 className="text-lg font-semibold line-clamp-2 mb-2">{news.title}</h3>
+        <h3 className="text-lg font-semibold line-clamp-2 mb-2">{news?.title}</h3>
         <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{news.excerpt}</p>
       </div>
       

@@ -39,7 +39,7 @@ type TimeRange = '1D' | '1M' | '3M' | '6M' | 'YTD' | '1Y' | '5Y' | 'MAX';
 export const GraphCard: React.FC<GraphCardProps> = ({ stock, onMaximize,isMaximized = false}) => {
 
 
-  console.log(stock);
+
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
   const [chartData, setChartData] = useState([]);
   // Load historical data as and when Time range on graph is changed by user
@@ -51,7 +51,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ stock, onMaximize,isMaximi
 
             const response = await fetch(`http://localhost:8000/api/stock_hist?ticker=${symbol}&time=${time}`);
             const result = await response.json();
-            console.log('history data',result);
+            
             console.log('Fetching historical data for', symbol);
             setChartData(result.chartData);
       }

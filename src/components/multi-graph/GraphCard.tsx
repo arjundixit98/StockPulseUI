@@ -102,6 +102,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ stock, onMaximize,isMaximi
     </button>
   );
   
+  const shortenedStockSymbol = stock.symbol.slice(0,stock.symbol.length-3);
   return (
     <div className={cn(
       "graph-card flex flex-col h-full transition-all duration-500",
@@ -110,7 +111,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ stock, onMaximize,isMaximi
       <div className="flex justify-between items-start mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">{stock.symbol}</h3>
+            <h3 className="text-lg font-semibold">{shortenedStockSymbol}</h3>
             <div className={cn(
               "flex items-center gap-1 text-xs rounded-full px-2 py-0.5",
               isUp ? "stock-up" : isDown ? "stock-down" : "stock-neutral"

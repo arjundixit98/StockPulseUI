@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import StockChartModal from './StockChartModal';
+
 import { GraphCard } from '../multi-graph/GraphCard';
 
 interface Holding {

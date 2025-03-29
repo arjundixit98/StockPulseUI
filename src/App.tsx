@@ -10,7 +10,7 @@ import MultiGraph from "./pages/MultiGraph";
 import Portfolio from "./pages/Portfolio";
 import Recommendations from "./pages/Recommendations";
 import NotFound from "./pages/NotFound";
-import StockList from  "./pages/StockList";
+
 import "./index.css";
 
 const queryClient = new QueryClient();
@@ -20,14 +20,18 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter  
+        future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }} >
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/news" element={<News />} />
           <Route path="/multi-graph" element={<MultiGraph />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/recommendations" element={<Recommendations />} />
-          <Route path="/demo" element={<StockList />} />
+      
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

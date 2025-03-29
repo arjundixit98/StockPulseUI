@@ -53,11 +53,10 @@ export const StockGraphOverlay: React.FC<StockGraphOverlayProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-5xl bg-opacity-95">
       <DialogHeader>
-      {/* <DialogTitle>Are you absolutely sure?</DialogTitle>
+      <DialogTitle></DialogTitle>
       <DialogDescription>
-        This action cannot be undone. This will permanently delete your account
-        and remove your data from our servers.
-      </DialogDescription> */}
+        
+      </DialogDescription>
     </DialogHeader>
         {stockData && (
           <GraphCard 

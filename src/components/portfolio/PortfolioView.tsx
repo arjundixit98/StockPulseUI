@@ -32,23 +32,9 @@ const demo = [
     }
   }
 ];
-// Sample data - this would be replaced with actual API response
-const SAMPLE_HOLDINGS = [
-  {
-    id: '1',
-    symbol: 'RELIANCE',
-    name: 'Reliance Industries Ltd',
-    quantity: 10,
-    avgPrice: 2450.75,
-    currentPrice: 2590.50,
-    value: 25905.00,
-    pl: 1397.50,
-    plPercentage: 5.70,
-    dayChange: 1.25,
-    sector: 'Oil & Gas'
-  },
 
-];
+
+
 
 interface PortfolioViewProps {
   title: string;
@@ -81,7 +67,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     try{
       const response = await fetch('http://localhost:8000/api/holdings');
       const result = await response.json();
-      console.log('Queried stock holindgs', result);
+      // console.log('Queried stock holindgs', result);
       return result;
     }
     catch(error){
@@ -94,29 +80,15 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
 
   useEffect(()=> {
 
-    const loadHoldingsOnFirstHold = async () => {
-      
-      const result = await fetchZerodhaHoldings();
-      setHoldings(result);
-    }
 
-    loadHoldingsOnFirstHold();
+      const loadHoldingsOnFirstHold = async () => {
+          const result = await fetchZerodhaHoldings();
+          console.log('Queried stock holindgs for the first time', result);
+          setHoldings(result);
+      }
       
-
-    //   const intervalId = setInterval(async ()=>{
-    //   setIsRefreshing(true);
-    //   const updatedHoldings = await fetchZerodhaHoldings();
-      
-    //   setHoldings(updatedHoldings);
-    //   console.log('Holdings refeshed again!')
-    //   setIsRefreshing(false);
-    // },1000);
-
-    // return ()=> {
-    //   if(intervalId)
-    //     clearInterval(intervalId);
-    // }; 
-  
+      loadHoldingsOnFirstHold();  
+      handleRefresh();
 
   },[]);
 
@@ -134,26 +106,26 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   };
   
   const handleRefresh = () => {
-    // This would be replaced with actual data fetching
-    // setIsRefreshing(true);
+    //This would be replaced with actual data fetching
+    setIsRefreshing(true);
     
 
-    // setInterval(async ()=>{
-    //   const updatedHoldings = await fetchZerodhaHoldings();
+    const intervalId = setInterval(async ()=>{
+      const updatedHoldings = await fetchZerodhaHoldings();
       
-    //   setHoldings(updatedHoldings);
-    //   console.log('Holdings refeshed again!')
-    //   setIsRefreshing(false);
-    // },1500);
+      setHoldings(updatedHoldings);
+      console.log('Holdings refeshed again!')
+      setIsRefreshing(false);
+    },1000);
 
-    // Simulate API delay
-    // setTimeout(async () => {
-    //   // Update with new random values to simulate real-time changes
-    //   const updatedHoldings = await fetchZerodhaHoldings();
-      
-    //   setHoldings(updatedHoldings);
-    //   setIsRefreshing(false);
-    // }, 1500);
+    //Simulate API delay
+
+    setTimeout(async()=> {
+      //clear interval after 10 seconds
+      clearInterval(intervalId);
+    },20000);
+
+   
   };
 
   const handleSelectStock = (symbol: string) => {

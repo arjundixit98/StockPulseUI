@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-
+import { StockGraphOverlay } from '../portfolio/StockGraphOverlay';
 
 const mockStocks: StockInfo[] = [
   {
@@ -50,6 +50,10 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
   const [tempWishlist, setTempWishlist] = useState<string[]>([]);
   const [newTickerInput, setNewTickerInput] = useState('');
   const [isAddingTicker, setIsAddingTicker] = useState(false);
+  const [selectedWishlist, setSelectedWishlist] = useState('');
+  const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  
 
   let intervalId;
 
@@ -124,8 +128,8 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
       console.log('stock data updated on first load');
     }
     
-    //loadStocksOnFirstLoad();
-    //startRealtimeRefresh();
+    loadStocksOnFirstLoad();
+    
 
   },[]);
   
@@ -146,17 +150,45 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
     }, 1000);
   };
 
-  const handleAddToWishlist = (symbol: string) => {
+
+  const handleAddToWishlist = async (symbol: string) => {
     if (!tempWishlist.includes(symbol)) {
       setTempWishlist([...tempWishlist, symbol]);
+      //call to backend API and persist this new symbol in the database
+
+      const response = await fetch(`http://localhost:8000/api/wishlist?name=${selectedWishlist}`,{
+          method: 'PUT',
+          headers: {
+            'Content-Type':'application/json'
+          },
+          body: JSON.stringify([symbol])
+        });
+
+      if(response.ok){
+          console.log('Wishlist updated into db successfully');
+      }
+    
+      else{
+          console.log('Failed to updated wishlist'); 
+      }
+
       toast.success(`${symbol} added to temporary wishlist`);
     } else {
       toast.info(`${symbol} is already in your wishlist`);
     }
   };
 
+  // const handleAddToWishlist = (symbol: string) => {
+  //   if (!tempWishlist.includes(symbol)) {
+  //     setTempWishlist([...tempWishlist, symbol]);
+  //     toast.success(`${symbol} added to temporary wishlist`);
+  //   } else {
+  //     toast.info(`${symbol} is already in your wishlist`);
+  //   }
+  // };
 
-  const handleLoadWishlist = async (stockSymbols: string[]) => {
+
+  const handleLoadWishlist = async (stockSymbols: string[], wishlistname : string) => {
 
     // const data = await fetchStockData(stockSymbols);
     // // console.log(stockSymbols);
@@ -165,6 +197,8 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
 
     fetchStockDataOnceAndStartPolling(stockSymbols);
     setTempWishlist(stockSymbols);
+    setShowWishlist(false);
+    setSelectedWishlist(wishlistname);
     
   
   };
@@ -301,11 +335,23 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
       {label}
       {sortBy === option && (
         <span className="ml-1">
-          {sortOrder === 'asc' ? '↑' : '↓'}
+          {sortOrder === 'asc' ? '↓' : '↑'}
         </span>
       )}
     </button>
   );
+
+
+  const handleSelectStock = (symbol: string) => {
+    setSelectedStock(symbol);
+    setIsOverlayOpen(true);
+  };
+
+  const handleCloseOverlay = () => {
+    setIsOverlayOpen(false);
+    setSelectedStock(null);
+  };
+
 
   return (
     <div className="space-y-6">
@@ -428,6 +474,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
             key={stock.symbol} 
             stock={stock} 
             onAddToWishlist={handleAddToWishlist}
+            onSelectStock={handleSelectStock} 
           />
         ))}
       </div>
@@ -437,6 +484,13 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
           <p className="text-muted-foreground">No stocks found matching your search.</p>
         </div>
       )}
+
+
+      <StockGraphOverlay 
+          isOpen={isOverlayOpen}
+          onClose={handleCloseOverlay}
+          stockSymbol={selectedStock}
+        />
     </div>
   );
 };

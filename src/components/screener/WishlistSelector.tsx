@@ -32,7 +32,7 @@ const defaultWishlists: Wishlist[] = [
 ];
 
 interface WishlistSelectorProps {
-  onLoadWishlist: (stockSymbols: string[]) => void;
+  onLoadWishlist: (stockSymbols: string[], wishlistname : string) => void;
   currentStocks: string[];
 }
 
@@ -74,8 +74,8 @@ export const WishlistSelector: React.FC<WishlistSelectorProps> = ({ onLoadWishli
 
   const handleLoadWishlist = (wishlist: Wishlist) => {
     console.log('Loading wishlist',wishlist);
-    onLoadWishlist(wishlist.symbols);
-    toast.success(`Loaded "${wishlist.name}" wishlist`);
+    onLoadWishlist(wishlist.symbols, wishlist.name);
+    toast.success(`Loading "${wishlist.name}" wishlist`);
   };
   
   const handleCreateWishlist = async () => {

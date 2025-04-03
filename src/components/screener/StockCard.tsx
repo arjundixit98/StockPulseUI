@@ -26,7 +26,7 @@ interface StockCardProps {
   onAddToWishlist?: (symbol: string) => void;
 }
 
-export const StockCard: React.FC<StockCardProps> = ({ stock, onAddToWishlist }) => {
+export const StockCard: React.FC<StockCardProps> = ({ stock, onAddToWishlist, onSelectStock }) => {
   const isUp = stock.change > 0;
   const isDown = stock.change < 0;
   
@@ -45,16 +45,26 @@ export const StockCard: React.FC<StockCardProps> = ({ stock, onAddToWishlist }) 
       toast.success(`${stock.symbol} added to temporary wishlist`);
     }
   };
-  
+  const shortenedSymbol = stock.symbol.substring(stock.symbol.length-3) === '.NS' ? stock.symbol.slice(0,stock.symbol.length-3) : stock.symbol;
   return (
     <div className="stock-card animate-fadeIn w-full">
       <div className="flex justify-between items-start mb-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">{stock.symbol}</h3>
+            {/* <h3 className="text-lg font-semibold">{shortenedSymbol}</h3> */}
+
+            <h3 
+              className="text-lg font-semibold cursor-pointer hover:text-primary transition-colors"
+              onClick={() => onSelectStock(shortenedSymbol+'.NS')}
+            >
+              {shortenedSymbol}
+            </h3>
             <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted">{stock.sector}</span>
           </div>
           <p className="text-sm text-muted-foreground">{stock.name}</p>
+
+          
+
         </div>
         <div className="flex gap-1">
           <button 

@@ -51,13 +51,42 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
   const [newTickerInput, setNewTickerInput] = useState('');
   const [isAddingTicker, setIsAddingTicker] = useState(false);
 
+  let intervalId;
+
+  const apiPolling = (stockSymbols) => {
+    console.log('Polling again!');
+    intervalId = setTimeout(()=> fetchStockDataOnceAndStartPolling(stockSymbols), 3000);
+  };
+
+
+  const fetchStockDataOnceAndStartPolling = async (stockSymbols: string[]) => {
+    try {
+
+       const tickerString = stockSymbols.toString();
+       const response = await fetch(`http://localhost:8000/api/stocks?tickers=${tickerString}`);
+       const result = await response.json();
+      //  console.log('Queried stocks data',result);
+       setStocks(result);
+      //apiPolling(stockSymbols);
+      //  setStocks(result);
+       
+
+    }
+    catch(error){
+      console.error('Error fetching data from Django REST API', error);
+      if(intervalId)
+        clearTimeout(intervalId);
+      return;
+    }
+  }
+
   const fetchStockData = async (stockSymbols: string[]) => {
     try {
 
        const tickerString = stockSymbols.toString();
        const response = await fetch(`http://localhost:8000/api/stocks?tickers=${tickerString}`);
        const result = await response.json();
-       console.log('Queried stocks data',result);
+      //  console.log('Queried stocks data',result);
        return result;
 
       //  setStocks(result);
@@ -71,17 +100,31 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
   }
 
 
-  useEffect(()=> {
-    
-    
-    const loadMockData = async () =>{
-      const data = await fetchStockData(['SWIGGY.NS','ZOMATO.NS','NVDA']);
-      setStocks(data);
+  const startRealtimeRefresh = async ()=> {
 
-      // setStocks(mockStocks);
+      const intervalId = setInterval(async ()=> {
+          const response = await fetch(`http://localhost:8000/api/stocks?tickers=SWIGGY.NS,ZOMATO.NS`);
+          const result = await response.json();
+          console.log('stock data updated');
+          setStocks(result);
+      },1000);
+     
+      setTimeout(async()=> {
+
+         clearInterval(intervalId);
+      },20000);
+  }
+
+  useEffect(()=> {
+
+    const loadStocksOnFirstLoad = async () =>{
+      const data = await fetchStockData(['SWIGGY.NS','ZOMATO.NS']);
+      setStocks(data);
+      console.log('stock data updated on first load');
     }
     
-    loadMockData();
+    //loadStocksOnFirstLoad();
+    //startRealtimeRefresh();
 
   },[]);
   
@@ -111,24 +154,18 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
     }
   };
 
+
   const handleLoadWishlist = async (stockSymbols: string[]) => {
 
-    const data = await fetchStockData(stockSymbols);
-    // console.log(stockSymbols);
-    setStocks(data);
+    // const data = await fetchStockData(stockSymbols);
+    // // console.log(stockSymbols);
+    // setStocks(data);
+    // setTempWishlist(stockSymbols);
+
+    fetchStockDataOnceAndStartPolling(stockSymbols);
     setTempWishlist(stockSymbols);
-    // const filteredStocks = stocks.filter(stock => 
-    //   stockSymbols.includes(stock.symbol)
-    // );
-    // console.log('filtered',stockSymbols);
-    // if (filteredStocks.length > 0) {
-    //   setStocks(filteredStocks);
-    //   setTempWishlist(stockSymbols);
-    // } else {
-    //   toast.error('No matching stocks found in the selected wishlist');
-    // }
-    // console.log('filtered',stockSymbols);
-    // console.log('stocks',stocks);
+    
+  
   };
 
   const fetchWishlists = async () => {

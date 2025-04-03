@@ -97,7 +97,7 @@ export const PortfolioHolding: React.FC<PortfolioHoldingProps> = ({ holding, onS
             <TableCell>₹{holding.avgPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</TableCell>
             <TableCell>
               <div className="flex items-center gap-1">
-                <span>₹{holding.currentPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                <span>₹{holding.stock.currentPrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
                 <span className={cn(
                   "text-xs flex items-center",
                   isDayUp ? "text-stock-up" : "text-stock-down"

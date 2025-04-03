@@ -72,7 +72,14 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const fetchZerodhaHoldingsAndStartPolling = async () => {
 
     try{
-      const response = await fetch('http://localhost:8000/api/holdings');
+      const response = await fetch('http://localhost:8000/api/holdings',
+        { method:'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       const result = await response.json();
       //console.log('Queried stock holdings on first load', result);
       setHoldings(result);

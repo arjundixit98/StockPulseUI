@@ -61,6 +61,35 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const isProfit = totalPL >= 0;
 
   // Load all holdings when the page loads for the first time
+  let intervalId;
+
+  
+  const startPolling = () => {
+    console.log('Polled again for holdings!')
+    intervalId = setTimeout(fetchZerodhaHoldingsAndStartPolling,3000);
+  }
+
+  const fetchZerodhaHoldingsAndStartPolling = async () => {
+
+    try{
+      const response = await fetch('http://localhost:8000/api/holdings');
+      const result = await response.json();
+      //console.log('Queried stock holdings on first load', result);
+      setHoldings(result);
+      //next timeout will start only after previous is finished with a delay of 3 seconds
+      startPolling();
+    }
+    catch(error){
+      console.log("Error occured while fetching holdings from Zerodha", error);
+      setHoldings([]);
+
+      if(intervalId)
+        clearTimeout(intervalId);
+      return;
+    }
+    
+  }
+
 
   const fetchZerodhaHoldings = async () => {
 
@@ -87,8 +116,15 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
           setHoldings(result);
       }
       
-      loadHoldingsOnFirstHold();  
-      handleRefresh();
+      //loadHoldingsOnFirstHold();  
+      //handleRefresh();
+
+      fetchZerodhaHoldingsAndStartPolling();
+
+      return ()=> {
+        if(intervalId)
+        clearTimeout(intervalId);
+      }
 
   },[]);
 

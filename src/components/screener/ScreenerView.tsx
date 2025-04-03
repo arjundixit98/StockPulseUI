@@ -74,6 +74,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
     }
     catch(error){
       console.error('Error fetching data from Django REST API', error);
+      setStocks([]);
       if(intervalId)
         clearTimeout(intervalId);
       return;

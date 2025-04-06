@@ -24,7 +24,7 @@ export const StockGraphOverlay: React.FC<StockGraphOverlayProps> = ({
 
     try{
 
-      const response = await fetch(`http://localhost:8000/api/stock?ticker=${ticker}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/stock?ticker=${ticker}`);
       const result = await response.json();
       
       console.log(`Queried stock data for ${result.symbol}`,result);

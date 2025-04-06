@@ -60,7 +60,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ title }) => {
 
     const fetchNewsData = async ()=>{
       try {
-        const API_KEY = import.meta.env.VITE_API_KEY;
+        const API_KEY = import.meta.env.VITE_ALPHA_API_KEY;
         const response = await fetch(`https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=AAPL,NVDA&apikey=${API_KEY}`);
         const result = await response.json();
         console.log(result);

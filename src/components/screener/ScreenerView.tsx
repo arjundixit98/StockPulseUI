@@ -67,7 +67,8 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
     try {
 
        const tickerString = stockSymbols.toString();
-       const response = await fetch(`http://localhost:8000/api/stocks?tickers=${tickerString}`);
+
+       const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/stocks?tickers=${tickerString}`);
        const result = await response.json();
       //  console.log('Queried stocks data',result);
        setStocks(result);
@@ -89,7 +90,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
     try {
 
        const tickerString = stockSymbols.toString();
-       const response = await fetch(`http://localhost:8000/api/stocks?tickers=${tickerString}`);
+       const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/stocks?tickers=${tickerString}`);
        const result = await response.json();
       //  console.log('Queried stocks data',result);
        return result;
@@ -108,7 +109,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
   const startRealtimeRefresh = async ()=> {
 
       const intervalId = setInterval(async ()=> {
-          const response = await fetch(`http://localhost:8000/api/stocks?tickers=SWIGGY.NS,ZOMATO.NS`);
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/stocks?tickers=SWIGGY.NS,ZOMATO.NS`);
           const result = await response.json();
           console.log('stock data updated');
           setStocks(result);
@@ -156,7 +157,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
       setTempWishlist([...tempWishlist, symbol]);
       //call to backend API and persist this new symbol in the database
 
-      const response = await fetch(`http://localhost:8000/api/wishlist?name=${selectedWishlist}`,{
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlist?name=${selectedWishlist}`,{
           method: 'PUT',
           headers: {
             'Content-Type':'application/json'
@@ -205,7 +206,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
 
   const fetchWishlists = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/wishlists`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlists`);
       const result = await response.json();
       if(result.length === 0){
         console.log('No wishlists found');

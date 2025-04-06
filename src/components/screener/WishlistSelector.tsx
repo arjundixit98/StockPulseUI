@@ -53,7 +53,8 @@ export const WishlistSelector: React.FC<WishlistSelectorProps> = ({ onLoadWishli
 
     const fetchWishlists = async () => {
         try {
-          const response = await fetch(`http://localhost:8000/api/wishlists`);
+          
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlists`);
           const result = await response.json();
           if(result.length === 0){
             console.log('No wishlists found');
@@ -96,7 +97,7 @@ export const WishlistSelector: React.FC<WishlistSelectorProps> = ({ onLoadWishli
     try{
 
           //save newly created wishlist into database
-          const response = await fetch(`http://localhost:8000/api/wishlist`,{
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlist`,{
               method: 'POST',
               headers: {
                 'Content-Type':'application/json'
@@ -129,7 +130,7 @@ export const WishlistSelector: React.FC<WishlistSelectorProps> = ({ onLoadWishli
       try{
 
           //save newly created wishlist into database
-          const response = await fetch(`http://localhost:8000/api/wishlist/${id}`,{
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlist/${id}`,{
               method: 'DELETE',
           });
 

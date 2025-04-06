@@ -50,7 +50,7 @@ export const MultiGraphView: React.FC<MultiGraphViewProps> = ({ title }) => {
 
   const fetchWishlists = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/wishlists`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlists`);
       const result = await response.json();
       if(result.length === 0){
         console.log('No wishlists found');
@@ -73,7 +73,7 @@ export const MultiGraphView: React.FC<MultiGraphViewProps> = ({ title }) => {
     const data = [];
     try{
       const tickerString = tickers.toString()
-      const response = await fetch(`http://localhost:8000/api/stocks?tickers=${tickerString}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/stocks?tickers=${tickerString}`);
       const result = await response.json();
       
       

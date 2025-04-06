@@ -49,7 +49,7 @@ export const GraphCard: React.FC<GraphCardProps> = ({ stock, onMaximize,isMaximi
       //for a single ticker
       const fetchHistoricalData = async (symbol, time: TimeRange) => {
 
-            const response = await fetch(`http://localhost:8000/api/stock_hist?ticker=${symbol}&time=${time}`);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/stock_hist?ticker=${symbol}&time=${time}`);
             const result = await response.json();
             
             console.log('Fetching historical data for', symbol);

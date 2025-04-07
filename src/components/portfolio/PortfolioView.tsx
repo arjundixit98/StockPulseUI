@@ -122,6 +122,8 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
 
   useEffect(()=> {
 
+      if(!isAuthenticated)
+        return;
 
       const loadHoldingsOnFirstHold = async () => {
           const result = await fetchZerodhaHoldings();
@@ -139,7 +141,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
         clearTimeout(intervalId);
       }
 
-  },[]);
+  },[isAuthenticated]);
 
 
   useEffect(() => {
@@ -165,6 +167,29 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   },[])
    
 
+
+  const handleDisconnect = async () => {
+    console.log('Disconnecting from Zerodha...');
+    
+
+    //call to backend api to delete the access-token cookie
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/logout`, { method: 'POST', credentials: 'include' });
+      const result = await response.json();
+
+      if(result?.error)
+        console.log('Error occured : ', result?.error);
+      
+      else
+        setIsAuthenticated(false);
+
+    } catch (error) {
+      console.log('Unable to logout', error);
+      setIsAuthenticated(false);
+    }
+    
+
+  };
 
   const handleConnect = () => {
     // This would be replaced with actual Zerodha API authentication
@@ -228,18 +253,30 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{title}</h1>
-        {isConnected && (
-          <Button
+        <div className="flex items-center justify-between gap-2">
+          {isAuthenticated && (
+            <Button
             variant="outline"
             size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
+            onClick={handleDisconnect}
             className="flex items-center gap-2"
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+            Disconnect Zerodha
           </Button>
-        )}
+          )}
+          {isConnected && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+            </Button>
+          )}
+        </div>
       </div>
 
       {!isAuthenticated ? (

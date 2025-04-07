@@ -44,7 +44,9 @@ type SortOption = 'name' | 'day_change_per' | 'p&l_per' | 'pe' | 'down%' | 'up%'
 
 
 export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
+  const [isRedirect, setIsRedirect] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [holdings, setHoldings] = useState([]);
   const [credentials, setCredentials] = useState({ apiKey: '', apiSecret: '' });
@@ -54,6 +56,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   // Total portfolio values calculations
+ 
   const totalInvestment = holdings.reduce((sum, item) => sum + (item.avgPrice * item.quantity), 0);
   const currentValue = holdings.reduce((sum, item) => sum + item.value, 0);
   const totalPL = currentValue - totalInvestment;
@@ -63,7 +66,9 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   // Load all holdings when the page loads for the first time
   let intervalId;
 
-  
+
+
+
   const startPolling = () => {
     console.log('Polled again for holdings!')
     intervalId = setTimeout(fetchZerodhaHoldingsAndStartPolling,3000);
@@ -72,10 +77,14 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const fetchZerodhaHoldingsAndStartPolling = async () => {
 
     try{
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/holdings`,);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/holdings`,
+        {
+          credentials: 'include'
+        }
+      );
       const result = await response.json();
       //console.log('Queried stock holdings on first load', result);
-      setHoldings(result);
+      setHoldings(result.data);
       //next timeout will start only after previous is finished with a delay of 3 seconds
       // startPolling();
     }
@@ -94,7 +103,11 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const fetchZerodhaHoldings = async () => {
 
     try{
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/holdings`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/holdings`,
+        {
+          credentials: 'include'
+        }
+      );
       const result = await response.json();
       // console.log('Queried stock holindgs', result);
       return result;
@@ -118,7 +131,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
       
       //loadHoldingsOnFirstHold();  
       //handleRefresh();
-
+      
       fetchZerodhaHoldingsAndStartPolling();
 
       return ()=> {
@@ -129,16 +142,47 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   },[]);
 
 
+  useEffect(() => {
+    // Make an API call to check if the token is valid (backend can look up the cookie)
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/auth-check`,
+          {
+            credentials: 'include'
+          }
+        )
+        const result = await response.json();
+        if(result.authenticated)
+          setIsAuthenticated(true);
+  
+      } catch (error) {
+        console.log('Error occured while checking auth', error);
+        setIsAuthenticated(false);
+      }
+    }
+
+    checkAuth();
+  },[])
+   
+
+
   const handleConnect = () => {
     // This would be replaced with actual Zerodha API authentication
     console.log('Connecting to Zerodha with credentials:', credentials);
-    setIsRefreshing(true);
-    
+    // setIsRefreshing(true);
+    const apiKey =   import.meta.env.VITE_KITE_API_KEY;
+
+
+    // Construct the Zerodha login URL
+    const loginUrl = `https://kite.zerodha.com/connect/login?v=3&api_key=${apiKey}`;
+    window.location.href = loginUrl;
+
+    setIsRedirect(true);
     // Simulate API delay
-    setTimeout(() => {
-      setIsConnected(true);
-      setIsRefreshing(false);
-    }, 1500);
+    // setTimeout(() => {
+    //   setIsConnected(true);
+    //   setIsRefreshing(false);
+    // }, 1500);
   };
   
   const handleRefresh = () => {
@@ -198,7 +242,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
         )}
       </div>
 
-      {!isConnected ? (
+      {!isAuthenticated ? (
         <Card className="p-6 glass-card">
           <h2 className="text-xl font-semibold mb-4">Connect to Zerodha</h2>
           <p className="text-muted-foreground mb-6">
@@ -231,7 +275,9 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
               disabled={!credentials.apiKey || !credentials.apiSecret || isRefreshing}
             >
               {isRefreshing ? 'Connecting...' : 'Connect to Zerodha'}
+              
             </Button>
+           
           </div>
         </Card>
       ) : (

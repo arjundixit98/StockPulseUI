@@ -282,34 +282,12 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
       {!isAuthenticated ? (
         <Card className="p-6 glass-card">
           <h2 className="text-xl font-semibold mb-4">Connect to Zerodha</h2>
-          <p className="text-muted-foreground mb-6">
-            Enter your Zerodha API credentials to fetch your portfolio data. Your credentials are stored locally and never shared.
-          </p>
+          
           <div className="space-y-4">
-            <div className="grid w-full items-center gap-2">
-              <label htmlFor="apiKey" className="text-sm font-medium">API Key</label>
-              <Input 
-                id="apiKey" 
-                type="text" 
-                placeholder="Enter your Zerodha API key"
-                value={credentials.apiKey}
-                onChange={(e) => setCredentials({...credentials, apiKey: e.target.value})}
-              />
-            </div>
-            <div className="grid w-full items-center gap-2">
-              <label htmlFor="apiSecret" className="text-sm font-medium">API Secret</label>
-              <Input 
-                id="apiSecret" 
-                type="password" 
-                placeholder="Enter your API secret"
-                value={credentials.apiSecret}
-                onChange={(e) => setCredentials({...credentials, apiSecret: e.target.value})}
-              />
-            </div>
+          
             <Button 
-              className="w-full" 
+              className="w-64" 
               onClick={handleConnect}
-              disabled={!credentials.apiKey || !credentials.apiSecret || isRefreshing}
             >
               {isRefreshing ? 'Connecting...' : 'Connect to Zerodha'}
               

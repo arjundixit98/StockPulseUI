@@ -191,15 +191,36 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
 
   };
 
-  const handleConnect = () => {
+  const saveAPICredsInBackendCache = async () => {
+
+
+  }
+  const handleConnect = async () => {
     // This would be replaced with actual Zerodha API authentication
     console.log('Connecting to Zerodha with credentials:', credentials);
     // setIsRefreshing(true);
-    const apiKey =   import.meta.env.VITE_KITE_API_KEY;
+    const apiKey =   credentials.apiKey;
+    const apiSecret = credentials.apiSecret;
 
 
     // Construct the Zerodha login URL
+    try {
+      await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/store-api-creds`, { 
+        method: 'POST', 
+        // credentials: 'include',
+        body: JSON.stringify({ api_key: apiKey, api_secret : apiSecret }),
+      });
+
+    } catch (error) {
+      console.log('Error occured while sending creds to backend', error);
+
+    }
+    
+
+
     const loginUrl = `https://kite.zerodha.com/connect/login?v=3&api_key=${apiKey}`;
+
+
     window.location.href = loginUrl;
 
     setIsRedirect(true);
@@ -282,9 +303,32 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
       {!isAuthenticated ? (
         <Card className="p-6 glass-card">
           <h2 className="text-xl font-semibold mb-4">Connect to Zerodha</h2>
-          
+          <p className="text-muted-foreground mb-6">
+            Enter your Zerodha API credentials to fetch your portfolio data. Your credentials are stored locally and never shared.
+          </p>
+
           <div className="space-y-4">
-          
+          <div className="grid w-full items-center gap-2">
+              <label htmlFor="apiKey" className="text-sm font-medium">API Key</label>
+              <Input 
+                id="apiKey" 
+                type="text" 
+                placeholder="Enter your Zerodha API key"
+                value={credentials.apiKey}
+                onChange={(e) => setCredentials({...credentials, apiKey: e.target.value})}
+              />
+            </div>
+            <div className="grid w-full items-center gap-2">
+              <label htmlFor="apiSecret" className="text-sm font-medium">API Secret</label>
+              <Input 
+                id="apiSecret" 
+                type="password" 
+                placeholder="Enter your API secret"
+                value={credentials.apiSecret}
+                onChange={(e) => setCredentials({...credentials, apiSecret: e.target.value})}
+              />
+            </div>
+
             <Button 
               className="w-64" 
               onClick={handleConnect}

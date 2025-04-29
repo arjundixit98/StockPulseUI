@@ -124,7 +124,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
   useEffect(()=> {
 
     const loadStocksOnFirstLoad = async () =>{
-      const data = await fetchStockData(['SWIGGY.NS','ZOMATO.NS']);
+      const data = await fetchStockData(['SWIGGY.NS','ETERNAL.NS']);
       setStocks(data);
       console.log('stock data updated on first load');
     }

@@ -46,7 +46,6 @@ type SortOption = 'name' | 'day_change_per' | 'p&l_per' | 'pe' | 'down%' | 'up%'
 export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isConnected, setIsConnected] = useState(true);
-  const [isRedirect, setIsRedirect] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [holdings, setHoldings] = useState([]);
   const [credentials, setCredentials] = useState({ apiKey: '', apiSecret: '' });
@@ -119,7 +118,33 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     
   }
 
+    //runs on first load of the page to check auth status
+    useEffect(() => {
+      // Make an API call to check if the token is valid (backend can look up the cookie)
+      const checkAuth = async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/auth-check`,
+            {
+              credentials: 'include'
+            }
+          )
+          const result = await response.json();
+          if(result.authenticated)
+            setIsAuthenticated(true);
+          else
+          console.log(result.error);
+    
+        } catch (error) {
+          console.log('Error occured while checking auth', error);
+          setIsAuthenticated(false);
+        }
+      }
+  
+      checkAuth();
+    },[])
+     
 
+  //fetches Kite holdings once auth is successful
   useEffect(()=> {
 
       if(!isAuthenticated)
@@ -143,29 +168,6 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
 
   },[isAuthenticated]);
 
-
-  useEffect(() => {
-    // Make an API call to check if the token is valid (backend can look up the cookie)
-    const checkAuth = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/auth-check`,
-          {
-            credentials: 'include'
-          }
-        )
-        const result = await response.json();
-        if(result.authenticated)
-          setIsAuthenticated(true);
-  
-      } catch (error) {
-        console.log('Error occured while checking auth', error);
-        setIsAuthenticated(false);
-      }
-    }
-
-    checkAuth();
-  },[])
-   
 
 
   const handleDisconnect = async () => {
@@ -191,10 +193,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
 
   };
 
-  const saveAPICredsInBackendCache = async () => {
 
-
-  }
   const handleConnect = async () => {
     // This would be replaced with actual Zerodha API authentication
     console.log('Connecting to Zerodha with credentials:', credentials);
@@ -211,24 +210,16 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
         body: JSON.stringify({ api_key: apiKey, api_secret : apiSecret }),
       });
 
+      const loginUrl = `https://kite.zerodha.com/connect/login?v=3&api_key=${apiKey}`;
+
+
+      window.location.href = loginUrl;
+
     } catch (error) {
       console.log('Error occured while sending creds to backend', error);
 
     }
     
-
-
-    const loginUrl = `https://kite.zerodha.com/connect/login?v=3&api_key=${apiKey}`;
-
-
-    window.location.href = loginUrl;
-
-    setIsRedirect(true);
-    // Simulate API delay
-    // setTimeout(() => {
-    //   setIsConnected(true);
-    //   setIsRefreshing(false);
-    // }, 1500);
   };
   
   const handleRefresh = () => {

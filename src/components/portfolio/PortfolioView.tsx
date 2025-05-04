@@ -117,6 +117,25 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
     }
     
   }
+  const clearTokenFromCookie = async ()=> {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/logout`, { method: 'POST', credentials: 'include' });
+        const result = await response.json();
+    
+        if(result?.error)
+          console.log('Error occured : ', result?.error);
+        
+        else
+          setIsAuthenticated(false);
+    
+      } catch (error) {
+        console.log('Unable to clear cookie', error);
+        setIsAuthenticated(false);
+      }
+      
+    } 
+
+
 
     //runs on first load of the page to check auth status
     useEffect(() => {
@@ -132,10 +151,14 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({ title }) => {
           if(result.authenticated)
             setIsAuthenticated(true);
           else
-          console.log(result.error);
+          {
+            console.log(result.error);
+            //await clearTokenFromCookie();
+          }
     
         } catch (error) {
           console.log('Error occured while checking auth', error);
+          //await clearTokenFromCookie();
           setIsAuthenticated(false);
         }
       }

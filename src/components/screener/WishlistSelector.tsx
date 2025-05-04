@@ -54,7 +54,7 @@ export const WishlistSelector: React.FC<WishlistSelectorProps> = ({ onLoadWishli
     const fetchWishlists = async () => {
         try {
           
-          const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlists`);
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlists/`);
           const result = await response.json();
           if(result.length === 0){
             console.log('No wishlists found');

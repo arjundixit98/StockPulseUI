@@ -206,7 +206,7 @@ export const ScreenerView: React.FC<ScreenerViewProps> = ({ title }) => {
 
   const fetchWishlists = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlists/`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_API_URL}/wishlists`);
       const result = await response.json();
       if(result.length === 0){
         console.log('No wishlists found');
